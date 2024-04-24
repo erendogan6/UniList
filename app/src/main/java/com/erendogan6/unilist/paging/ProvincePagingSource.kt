@@ -2,19 +2,25 @@ package com.erendogan6.unilist.paging
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
-import com.erendogan6.unilist.model.Province
+import com.erendogan6.unilist.model.ProvinceWithExpansion
+import com.erendogan6.unilist.model.UniversityWithExpansion
 import com.erendogan6.unilist.network.ApiService
 import javax.inject.Inject
 
-class ProvincePagingSource @Inject constructor(private val apiService: ApiService) : PagingSource<Int, Province>() {
+class ProvincePagingSource @Inject constructor(private val apiService: ApiService) : PagingSource<Int, ProvinceWithExpansion>() {
 
-    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Province> {
+    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, ProvinceWithExpansion> {
         val pageNumber = params.key ?: 1
         return try {
             val response = apiService.getUniversities(pageNumber)
             if (response.isSuccessful && response.body() != null) {
                 val data = response.body()!!
-                LoadResult.Page(data = data.data, prevKey = if (pageNumber == 1) null else pageNumber - 1, nextKey = if (pageNumber < data.totalPage) pageNumber + 1 else null)
+                val expansion = data.data.map { province ->
+                    ProvinceWithExpansion(province = province, isExpanded = false, universities = province.universities.map { university ->
+                        UniversityWithExpansion(university, isExpanded = false)
+                    })
+                }
+                LoadResult.Page(data = expansion, prevKey = if (pageNumber == 1) null else pageNumber - 1, nextKey = if (pageNumber < data.totalPage) pageNumber + 1 else null)
             } else {
                 LoadResult.Error(Exception("API call was unsuccessful"))
             }
@@ -23,7 +29,7 @@ class ProvincePagingSource @Inject constructor(private val apiService: ApiServic
         }
     }
 
-    override fun getRefreshKey(state: PagingState<Int, Province>): Int? {
+    override fun getRefreshKey(state: PagingState<Int, ProvinceWithExpansion>): Int? {
         val anchorPosition = state.anchorPosition ?: return null
         val page = state.closestPageToPosition(anchorPosition) ?: return null
         page.prevKey?.let { return it + 1 }
