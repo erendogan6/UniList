@@ -70,7 +70,7 @@ dependencies {
     implementation libs.androidx.paging.runtime
 
     // OkHttp
-    implementation libs.okhttp
+    implementation(libs.okhttp)
 
     implementation libs.androidx.core.ktx
     implementation libs.androidx.appcompat
