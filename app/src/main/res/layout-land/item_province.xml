@@ -18,7 +18,8 @@
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_weight="1"
-            android:src="@drawable/expand_icon" />
+            android:src="@drawable/expand_icon"
+            android:contentDescription="@string/expand_icon" />
 
         <TextView
             android:id="@+id/provinceName"
