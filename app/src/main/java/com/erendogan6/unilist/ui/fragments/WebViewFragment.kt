@@ -19,48 +19,61 @@ import com.erendogan6.unilist.databinding.FragmentWebViewBinding
 class WebViewFragment : Fragment() {
     private var _binding: FragmentWebViewBinding? = null
     private val binding get() = _binding!!
-    @SuppressLint("SetJavaScriptEnabled") override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        _binding = FragmentWebViewBinding.inflate(inflater, container, false)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         val url = arguments?.getString("url") ?: "https://google.com"
         val name = arguments?.getString("name")
+        _binding = FragmentWebViewBinding.inflate(inflater, container, false).apply {
+            setupWebView(url)
+            handleBackPress()
+            setupUIActions()
+        }
 
         binding.universityName.text = name
-
-        val webView = binding.myWebView
-
-        webView.settings.javaScriptEnabled = true
-        webView.loadUrl(url)
-
-        val isSecure = isHttps(url)
-        binding.ImageViewSecure.setImageResource(if (isSecure) R.drawable.secure_icon
-        else R.drawable.unsecure_icon)
-
-        requireActivity().onBackPressedDispatcher.addCallback {
-            if (webView.canGoBack()) {
-                webView.goBack()
-            } else {
-                findNavController().popBackStack()
-            }
-        }
-
-        webView.webViewClient = object : WebViewClient() {
-            override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
-                super.onPageStarted(view, url, favicon)
-                val formattedUrl = formatUrlForDisplay(url!!)
-                binding.urlTextView.text = formattedUrl
-                TooltipCompat.setTooltipText(binding.urlTextView, url)
-            }
-        }
-        binding.closeButton.setOnClickListener { findNavController().popBackStack() }
-        binding.refreshButton.setOnClickListener { webView.reload() }
         return binding.root
     }
 
-
-    override fun onDestroy() {
-        super.onDestroy()
-        _binding = null
+    @SuppressLint("SetJavaScriptEnabled") private fun FragmentWebViewBinding.setupWebView(url: String) {
+        myWebView.apply {
+            settings.javaScriptEnabled = true
+            loadUrl(url)
+            webViewClient = createWebViewClient()
+        }
+        updateSecurityIcon(url)
     }
+
+    private fun createWebViewClient(): WebViewClient {
+        return object : WebViewClient() {
+            override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
+                if (isAdded && !isRemoving && _binding != null) {
+                    super.onPageStarted(view, url, favicon)
+                    binding.urlTextView.text = formatUrlForDisplay(url!!)
+                    TooltipCompat.setTooltipText(binding.urlTextView, url)
+                }
+            }
+        }
+    }
+
+    private fun handleBackPress() {
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
+            if (binding.myWebView.canGoBack()) {
+                binding.myWebView.goBack()
+            } else {
+                isEnabled = false
+                findNavController().popBackStack()
+            }
+        }
+    }
+
+    private fun FragmentWebViewBinding.setupUIActions() {
+        closeButton.setOnClickListener { findNavController().popBackStack() }
+        refreshButton.setOnClickListener { binding.myWebView.reload() }
+    }
+
+    private fun FragmentWebViewBinding.updateSecurityIcon(url: String) {
+        val isSecure = isHttps(url)
+        ImageViewSecure.setImageResource(if (isSecure) R.drawable.secure_icon else R.drawable.unsecure_icon)
+    }
+
 
     fun formatUrlForDisplay(url: String): String {
         return try {
@@ -81,6 +94,16 @@ class WebViewFragment : Fragment() {
         } catch (e: Exception) {
             false
         }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        binding.myWebView.apply {
+            stopLoading()
+            destroy()
+        }
+        binding.myWebView.webViewClient = object : WebViewClient() {}
+        _binding = null
     }
 
 
