@@ -35,6 +35,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="5dp"
             android:src="@drawable/secure_icon"
+            android:tooltipText="Bağlantı Güvenliği"
             android:contentDescription="@string/https_icon" />
 
         <TextView
