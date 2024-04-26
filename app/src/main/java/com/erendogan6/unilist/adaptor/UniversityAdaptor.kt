@@ -5,6 +5,7 @@ import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.erendogan6.unilist.R
@@ -98,6 +99,19 @@ class UniversityAdapter(private val onFavoriteClicked: (University) -> Unit) : R
             binding.universityRector.text = "Rektör: ${university.university.rector}"
             updateExpandIcon(university.isExpanded)
             binding.detailsLayout.visibility = if (university.isExpanded) View.VISIBLE else View.GONE
+
+            binding.universityAdress.setOnClickListener {
+                val address = university.university.adress
+                val gmmIntentUri = Uri.parse("geo:0,0?q=$address")
+                val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri)
+                mapIntent.setPackage("com.google.android.apps.maps")
+
+                if (mapIntent.resolveActivity(itemView.context.packageManager) != null) {
+                    itemView.context.startActivity(mapIntent)
+                } else {
+                    Toast.makeText(itemView.context, "Google Maps uygulaması yüklü değil", Toast.LENGTH_SHORT).show()
+                }
+            }
 
             binding.expandIcon.setOnClickListener {
                 if (detailsAreEmpty) return@setOnClickListener
