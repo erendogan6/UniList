@@ -6,27 +6,41 @@
     android:orientation="horizontal"
     android:padding="16dp">
 
-    <ImageView
-        android:id="@+id/expandIcon"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:src="@drawable/expand_icon" />
-
     <LinearLayout
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
         android:orientation="vertical"
-        android:layout_marginStart="16dp">
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
-        <TextView
-            android:id="@+id/universityName"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:textColor="@color/black"
-            android:gravity="start" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:gravity="center"
+            android:layout_gravity="center"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:id="@+id/expandIcon"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/expand_icon" />
+
+            <TextView
+                android:id="@+id/universityName"
+                android:layout_width="0dp"
+                android:layout_weight="50"
+                android:layout_height="wrap_content"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="@color/black" />
+
+            <ImageView
+                android:id="@+id/favorite_icon"
+                android:src="@drawable/unfavorite_icon"
+                android:layout_marginStart="10dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@string/favorite_icon" />
+
+        </LinearLayout>
 
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
@@ -90,7 +104,5 @@
                     app:drawableStartCompat="@drawable/person_icon" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>
-
     </LinearLayout>
-
 </LinearLayout>
