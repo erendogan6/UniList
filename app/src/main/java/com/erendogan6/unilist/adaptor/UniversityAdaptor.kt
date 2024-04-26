@@ -88,7 +88,7 @@ class UniversityAdapter(private val onFavoriteClicked: (University) -> Unit) : R
                 phone == "-" && fax == "-" && website == "-" && adress == "-" && rector == "-"
             }
 
-            binding.expandIcon.visibility = if (detailsAreEmpty) View.GONE else View.VISIBLE
+            binding.expandIcon.visibility = if (detailsAreEmpty) View.INVISIBLE else View.VISIBLE
 
             binding.universityName.text = university.university.name
             binding.universityPhone.text = "Telefon: ${university.university.phone}"
