@@ -18,7 +18,7 @@ import javax.inject.Singleton
 
 @Singleton class UniversityRepository @Inject constructor(private val apiService: ApiService, private val universityDao: UniversityDao) {
     fun getProvincesStream(pagingConfig: PagingConfig = provincesPagingConfig()): Flow<PagingData<ProvinceWithExpansion>> {
-        return Pager(config = pagingConfig, pagingSourceFactory = { ProvincePagingSource(apiService) }).flow
+        return Pager(config = pagingConfig, pagingSourceFactory = { ProvincePagingSource(apiService, universityDao) }).flow
     }
 
     private fun provincesPagingConfig() = PagingConfig(pageSize = 30, enablePlaceholders = true, maxSize = 90, prefetchDistance = 10, initialLoadSize = 30)
