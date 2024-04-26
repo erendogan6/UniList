@@ -16,23 +16,11 @@ import com.erendogan6.unilist.ui.fragments.ListFragmentDirections
 
 class UniversityAdapter(private val onFavoriteClicked: (University) -> Unit) : RecyclerView.Adapter<UniversityAdapter.UniversityViewHolder>() {
 
-
     private var universities: List<UniversityWithExpansion> = listOf()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): UniversityViewHolder {
         val binding = ItemUniversityBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return UniversityViewHolder(binding)
-    }
-
-    fun getExpandedStates(): BooleanArray {
-        return universities.map { it.isExpanded }.toBooleanArray()
-    }
-
-    fun restoreExpandedStates(expandedStates: BooleanArray) {
-        universities.forEachIndexed { index, universityWithExpansion ->
-            universityWithExpansion.isExpanded = expandedStates.getOrElse(index) { false }
-        }
-        notifyDataSetChanged()
     }
 
     override fun onBindViewHolder(holder: UniversityViewHolder, position: Int) {
