@@ -28,51 +28,50 @@ import kotlinx.coroutines.launch
     private lateinit var adapter: ProvinceAdapter
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        _binding = FragmentListBinding.inflate(inflater, container, false)
-        setupRecyclerView()
-        collectProvinces()
-        setupLoadStateListener()
-        setupCollapseIcon()
-        setupFavoriteIcon()
+        _binding = FragmentListBinding.inflate(inflater, container, false).apply {
+            initializeUI()
+        }
+        observeProvinces()
         return binding.root
     }
 
-
-    private fun setupCollapseIcon() {
-        binding.collapseIcon.setOnClickListener {
-            adapter.collapseAllItems()
-        }
+    private fun FragmentListBinding.initializeUI() {
+        setupRecyclerView()
+        setupLoadStateListener()
+        setupUIInteractions()
     }
 
-    private fun setupFavoriteIcon() {
-        binding.favoriteIcon.setOnClickListener {
+    private fun FragmentListBinding.setupUIInteractions() {
+        collapseIcon.setOnClickListener {
+            adapter.collapseAllItems()
+        }
+
+        favoriteIcon.setOnClickListener {
             findNavController().navigate(R.id.action_listFragment_to_favoritesFragment)
         }
     }
 
-    private fun setupRecyclerView() {
+    private fun FragmentListBinding.setupRecyclerView() {
         adapter = ProvinceAdapter(onFavoriteClicked = { university ->
             favoritesViewModel.toggleFavorite(university)
         })
-        binding.recyclerView.layoutManager = LinearLayoutManager(context)
-        binding.recyclerView.adapter = adapter
-    }
-
-    private fun setupLoadStateListener() {
-        adapter.addLoadStateListener { loadState ->
-            if (loadState.refresh is LoadState.Loading) {
-                binding.progressBar.visibility = View.VISIBLE
-            } else {
-                binding.progressBar.visibility = View.GONE
-            }
+        recyclerView.apply {
+            layoutManager = LinearLayoutManager(context)
+            adapter = this@ListFragment.adapter
         }
     }
 
-    private fun collectProvinces() {
+    private fun FragmentListBinding.setupLoadStateListener() {
+        adapter.addLoadStateListener { loadState ->
+            progressBar.visibility = if (loadState.refresh is LoadState.Loading) View.VISIBLE else View.GONE
+        }
+    }
+
+    private fun observeProvinces() {
         lifecycleScope.launch {
             listViewModel.provincesFlow.collectLatest { pagingData ->
-                if (pagingData != null) {
-                    adapter.submitData(pagingData)
+                pagingData?.let {
+                    adapter.submitData(it)
                 }
             }
         }
