@@ -1,10 +1,15 @@
 package com.erendogan6.unilist.di
 
+import android.content.Context
+import androidx.room.Room
+import com.erendogan6.unilist.db.UniversityDao
+import com.erendogan6.unilist.db.UniversityDatabase
 import com.erendogan6.unilist.network.ApiService
 import com.erendogan6.unilist.repository.UniversityRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
@@ -24,7 +29,6 @@ import javax.inject.Singleton
         }.build()
     }
 
-
     @Provides @Singleton fun provideRetrofit(): Retrofit {
         return Retrofit.Builder().baseUrl(url).client(provideOkHttpClient()).addConverterFactory(GsonConverterFactory.create()).build()
     }
@@ -33,7 +37,12 @@ import javax.inject.Singleton
         return retrofit.create(ApiService::class.java)
     }
 
-    @Provides @Singleton fun provideUniversityRepository(apiService: ApiService): UniversityRepository {
-        return UniversityRepository(apiService)
+    @Provides @Singleton fun provideUniversityDao(@ApplicationContext context: Context): UniversityDao {
+        val db = Room.databaseBuilder(context, UniversityDatabase::class.java, "universityDB").fallbackToDestructiveMigration().build()
+        return db.getDao()
+    }
+
+    @Provides @Singleton fun provideUniversityRepository(apiService: ApiService, universityDao: UniversityDao): UniversityRepository {
+        return UniversityRepository(apiService, universityDao)
     }
 }
