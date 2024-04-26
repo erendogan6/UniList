@@ -21,19 +21,21 @@ class WebViewFragment : Fragment() {
     private val binding get() = _binding!!
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         val url = arguments?.getString("url") ?: "https://google.com"
-        val name = arguments?.getString("name")
-        _binding = FragmentWebViewBinding.inflate(inflater, container, false).apply {
-            setupWebView(url)
-            handleBackPress()
-            setupUIActions()
-        }
-
-        binding.universityName.text = name
+        _binding = FragmentWebViewBinding.inflate(inflater, container, false)
+        setupWebView(url)
+        handleBackPress()
+        setupUIActions()
+        bindName()
         return binding.root
     }
 
-    @SuppressLint("SetJavaScriptEnabled") private fun FragmentWebViewBinding.setupWebView(url: String) {
-        myWebView.apply {
+    private fun bindName() {
+        val name = arguments?.getString("name")
+        binding.universityName.text = name
+    }
+
+    @SuppressLint("SetJavaScriptEnabled") private fun setupWebView(url: String) {
+        binding.myWebView.apply {
             settings.javaScriptEnabled = true
             loadUrl(url)
             webViewClient = createWebViewClient()
@@ -44,7 +46,7 @@ class WebViewFragment : Fragment() {
     private fun createWebViewClient(): WebViewClient {
         return object : WebViewClient() {
             override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
-                if (isAdded && !isRemoving && _binding != null) {
+                if (isAdded) {
                     super.onPageStarted(view, url, favicon)
                     binding.urlTextView.text = formatUrlForDisplay(url!!)
                     TooltipCompat.setTooltipText(binding.urlTextView, url)
@@ -64,14 +66,14 @@ class WebViewFragment : Fragment() {
         }
     }
 
-    private fun FragmentWebViewBinding.setupUIActions() {
-        closeButton.setOnClickListener { findNavController().popBackStack() }
-        refreshButton.setOnClickListener { binding.myWebView.reload() }
+    private fun setupUIActions() {
+        binding.closeButton.setOnClickListener { findNavController().popBackStack() }
+        binding.refreshButton.setOnClickListener { binding.myWebView.reload() }
     }
 
-    private fun FragmentWebViewBinding.updateSecurityIcon(url: String) {
+    private fun updateSecurityIcon(url: String) {
         val isSecure = isHttps(url)
-        ImageViewSecure.setImageResource(if (isSecure) R.drawable.secure_icon else R.drawable.unsecure_icon)
+        binding.ImageViewSecure.setImageResource(if (isSecure) R.drawable.secure_icon else R.drawable.unsecure_icon)
     }
 
 
@@ -98,11 +100,6 @@ class WebViewFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        binding.myWebView.apply {
-            stopLoading()
-            destroy()
-        }
-        binding.myWebView.webViewClient = object : WebViewClient() {}
         _binding = null
     }
 

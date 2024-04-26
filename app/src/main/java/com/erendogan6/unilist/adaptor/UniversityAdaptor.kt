@@ -12,6 +12,7 @@ import com.erendogan6.unilist.R
 import com.erendogan6.unilist.databinding.ItemUniversityBinding
 import com.erendogan6.unilist.model.University
 import com.erendogan6.unilist.model.UniversityWithExpansion
+import com.erendogan6.unilist.ui.fragments.FavoritesFragmentDirections
 import com.erendogan6.unilist.ui.fragments.ListFragmentDirections
 
 class UniversityAdapter(private val onFavoriteClicked: (University) -> Unit) : RecyclerView.Adapter<UniversityAdapter.UniversityViewHolder>() {
@@ -92,8 +93,15 @@ class UniversityAdapter(private val onFavoriteClicked: (University) -> Unit) : R
 
         private fun navigateToWebsite(uni: University) {
             if (uni.website != "-") {
-                val action = ListFragmentDirections.actionListFragmentToWebViewFragment(uni.website, uni.name)
-                itemView.findNavController().navigate(action)
+                itemView.findNavController().currentDestination?.let { currentDestination ->
+                    if (currentDestination.id == R.id.listFragment) {
+                        val action = ListFragmentDirections.actionListFragmentToWebViewFragment(uni.website, uni.name)
+                        itemView.findNavController().navigate(action)
+                    } else if (currentDestination.id == R.id.favoritesFragment) {
+                        val action = FavoritesFragmentDirections.actionFavoritesFragmentToWebViewFragment(uni.website, uni.name)
+                        itemView.findNavController().navigate(action)
+                    }
+                }
             }
         }
 
