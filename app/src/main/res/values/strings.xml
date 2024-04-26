@@ -1,4 +1,15 @@
 <resources>
     <string name="app_name">UniList</string>
     <string name="splash_image">Splash Image</string>
+    <string name="favorite_icon">Favorite Icon</string>
+    <string name="expand_icon">Expand Icon</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="favorilerim">Favorilerim</string>
+    <string name="back_icon">Back Icon</string>
+    <string name="hen_z_bir_niversite_eklemedin">Henüz Bir Üniversite Eklemedin!</string>
+    <string name="https_icon">HTTPS Icon</string>
+    <string name="close_button">Close Button</string>
+    <string name="refresh_button">Refresh Button</string>
+    <string name="niversiteler">Üniversiteler</string>
+    <string name="collapse_all_icon">Collapse All Icon</string>
 </resources>
