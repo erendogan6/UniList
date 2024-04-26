@@ -28,30 +28,32 @@ class ProvinceAdapter(var onFavoriteClicked: (University) -> Unit) : PagingDataA
 
     fun collapseAllItems() {
         val currentList = snapshot()
-        currentList.forEach { item ->
-            if (item != null) {
-                if (item.isExpanded) {
-                    item.isExpanded = false
-                    notifyItemChanged(currentList.indexOf(item))
-                }
-                item.universities.forEach {
-                    if (it.isExpanded) {
-                        it.isExpanded = false
-                        notifyItemChanged(currentList.indexOf(item))
-                    }
+        currentList.forEachIndexed { index, item ->
+            var notify = false
+            if (item?.isExpanded == true) {
+                item.isExpanded = false
+                notify = true
+            }
+            item?.universities?.forEach {
+                if (it.isExpanded) {
+                    it.isExpanded = false
+                    notify = true
                 }
             }
+            if (notify) notifyItemChanged(index)
         }
     }
 
     inner class ProvinceViewHolder(private val binding: ItemProvinceBinding) : RecyclerView.ViewHolder(binding.root) {
-        private var universityAdapter: UniversityAdapter? = null
+
+        private val universityAdapter: UniversityAdapter by lazy {
+            UniversityAdapter(onFavoriteClicked).apply {
+                binding.universityList.layoutManager = LinearLayoutManager(binding.root.context)
+                binding.universityList.adapter = this
+            }
+        }
 
         init {
-            universityAdapter = UniversityAdapter(onFavoriteClicked)
-            binding.universityList.layoutManager = LinearLayoutManager(binding.root.context)
-            binding.universityList.adapter = universityAdapter
-
             binding.expandIcon.setOnClickListener {
                 val position = bindingAdapterPosition
                 if (position != RecyclerView.NO_POSITION) {
@@ -61,15 +63,16 @@ class ProvinceAdapter(var onFavoriteClicked: (University) -> Unit) : PagingDataA
                         updateExpandIcon(it.isExpanded)
                         notifyItemChanged(position)
 
-                        if (it.isExpanded) {
-                            universityAdapter?.submitList(it.universities)
-                            binding.universityList.visibility = View.VISIBLE
-                        } else {
-                            binding.universityList.visibility = View.GONE
-                        }
+                        handleUniversityListVisibility(it)
                     }
                 }
             }
+        }
+
+        private fun handleUniversityListVisibility(province: ProvinceWithExpansion) {
+            val isVisible = province.isExpanded
+            universityAdapter.submitList(if (isVisible) province.universities else emptyList())
+            binding.universityList.visibility = if (isVisible) View.VISIBLE else View.GONE
         }
 
 
@@ -78,12 +81,7 @@ class ProvinceAdapter(var onFavoriteClicked: (University) -> Unit) : PagingDataA
             updateExpandIcon(province.isExpanded)
             binding.expandIcon.visibility = if (province.universities.isEmpty()) View.GONE else View.VISIBLE
 
-            if (province.isExpanded) {
-                universityAdapter?.submitList(province.universities)
-                binding.universityList.visibility = View.VISIBLE
-            } else {
-                binding.universityList.visibility = View.GONE
-            }
+            handleUniversityListVisibility(province)
         }
 
         private fun updateExpandIcon(isExpanded: Boolean) {
