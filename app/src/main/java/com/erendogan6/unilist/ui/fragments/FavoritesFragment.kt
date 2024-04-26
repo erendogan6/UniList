@@ -11,6 +11,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.erendogan6.unilist.adaptor.UniversityAdapter
 import com.erendogan6.unilist.databinding.FragmentFavoritesBinding
+import com.erendogan6.unilist.model.UniversityWithExpansion
 import com.erendogan6.unilist.viewmodel.FavoritesViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -20,57 +21,50 @@ import kotlinx.coroutines.launch
     private val binding get() = _binding!!
     private val favoritesViewModel: FavoritesViewModel by viewModels()
     private lateinit var adapter: UniversityAdapter
-    
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        _binding = FragmentFavoritesBinding.inflate(inflater, container, false)
+        _binding = FragmentFavoritesBinding.inflate(inflater, container, false).apply {
+            initializeUI()
+        }
         favoritesViewModel.getFavorites()
-        setupBackButton()
-        setupRecyclerView()
-        collectUniversities()
+        observeFavorites()
         return binding.root
     }
 
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        val expandedStates = adapter.getExpandedStates()
-        outState.putBooleanArray("expanded_states", expandedStates)
+    private fun FragmentFavoritesBinding.initializeUI() {
+        setupBackButton()
+        setupRecyclerView()
     }
 
-    override fun onViewStateRestored(savedInstanceState: Bundle?) {
-        super.onViewStateRestored(savedInstanceState)
-        savedInstanceState?.getBooleanArray("expanded_states")?.let {
-            adapter.restoreExpandedStates(it)
-        }
-    }
-
-    private fun setupBackButton() {
-        binding.backIcon.setOnClickListener {
+    private fun FragmentFavoritesBinding.setupBackButton() {
+        backIcon.setOnClickListener {
             findNavController().popBackStack()
         }
     }
 
-    private fun setupRecyclerView() {
-        binding.recyclerView.layoutManager = LinearLayoutManager(context)
+    private fun FragmentFavoritesBinding.setupRecyclerView() {
         adapter = UniversityAdapter { university ->
             favoritesViewModel.toggleFavorite(university)
         }
-        binding.recyclerView.adapter = adapter
+        recyclerView.apply {
+            layoutManager = LinearLayoutManager(context)
+            adapter = this@FavoritesFragment.adapter
+        }
     }
 
-    private fun collectUniversities() {
+    private fun observeFavorites() {
         lifecycleScope.launch {
-            favoritesViewModel.favoritesList.observe(viewLifecycleOwner) {
-                if (it.isNotEmpty()) {
-                    binding.recyclerView.visibility = View.VISIBLE
-                    binding.warningText.visibility = View.GONE
-                } else {
-                    binding.recyclerView.visibility = View.GONE
-                    binding.warningText.visibility = View.VISIBLE
-                }
-                adapter.submitList(it)
+            favoritesViewModel.favoritesList.observe(viewLifecycleOwner) { universities ->
+                updateUIBasedOnFavorites(universities)
             }
         }
+    }
+
+    private fun updateUIBasedOnFavorites(universities: List<UniversityWithExpansion>) {
+        val hasFavorites = universities.isNotEmpty()
+        binding.recyclerView.visibility = if (hasFavorites) View.VISIBLE else View.GONE
+        binding.warningText.visibility = if (hasFavorites) View.GONE else View.VISIBLE
+        adapter.submitList(universities)
     }
 
     override fun onDestroy() {
