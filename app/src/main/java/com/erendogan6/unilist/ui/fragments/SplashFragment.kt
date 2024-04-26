@@ -38,10 +38,15 @@ import kotlinx.coroutines.launch
     private fun setupLoadStateListener() {
         adapter.addLoadStateListener { loadState ->
             if (loadState.refresh is LoadState.NotLoading) {
-                findNavController().navigate(R.id.action_splashFragment_to_listFragment)
+                navigateToListFragment()
             }
         }
     }
+
+    private fun navigateToListFragment() {
+        findNavController().navigate(R.id.action_splashFragment_to_listFragment)
+    }
+
 
     private fun observeLoadingState() {
         lifecycleScope.launch {
