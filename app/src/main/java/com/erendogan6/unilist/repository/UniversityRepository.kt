@@ -37,7 +37,4 @@ import javax.inject.Singleton
         }
     }
 
-    suspend fun isFavorite(universityName: String): Boolean {
-        return universityDao.isFavorite(universityName)
-    }
 }

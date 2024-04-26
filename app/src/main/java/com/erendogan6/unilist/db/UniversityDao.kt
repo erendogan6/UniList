@@ -11,5 +11,4 @@ import com.erendogan6.unilist.model.University
     @Query("SELECT * FROM favorite_universities") suspend fun getAllFavorites(): List<University>
     @Insert(onConflict = OnConflictStrategy.REPLACE) suspend fun insertFavorite(university: University)
     @Delete suspend fun deleteFavorite(university: University)
-    @Query("SELECT EXISTS(SELECT 1 FROM favorite_universities WHERE name = :universityName)") suspend fun isFavorite(universityName: String): Boolean
 }
