@@ -22,6 +22,9 @@
         <action
             android:id="@+id/action_listFragment_to_favoritesFragment"
             app:destination="@id/favoritesFragment" />
+        <action
+            android:id="@+id/action_listFragment_to_webViewFragment"
+            app:destination="@id/webViewFragment" />
     </fragment>
     <fragment
         android:id="@+id/favoritesFragment"
@@ -29,5 +32,19 @@
         android:label="fragment_favorites"
         tools:layout="@layout/fragment_favorites">
 
+        <action
+            android:id="@+id/action_favoritesFragment_to_webViewFragment"
+            app:destination="@id/webViewFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/webViewFragment"
+        android:name="com.erendogan6.unilist.ui.fragments.WebViewFragment"
+        android:label="WebViewFragment">
+        <argument
+            android:name="url"
+            app:argType="string" />
+        <argument
+            android:name="name"
+            app:argType="string" />
     </fragment>
 </navigation>
