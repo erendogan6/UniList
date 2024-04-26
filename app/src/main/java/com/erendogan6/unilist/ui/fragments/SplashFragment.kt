@@ -14,6 +14,7 @@ import com.erendogan6.unilist.adaptor.SplashAdapter
 import com.erendogan6.unilist.databinding.FragmentSplashBinding
 import com.erendogan6.unilist.viewmodel.UniversityListViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -30,7 +31,6 @@ import kotlinx.coroutines.launch
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        println("splash başladı")
         observeLoadingState()
         setupLoadStateListener()
     }
@@ -46,6 +46,7 @@ import kotlinx.coroutines.launch
     private fun observeLoadingState() {
         lifecycleScope.launch {
             viewModel.provincesFlow.collectLatest {
+                delay(1000)
                 if (it != null) {
                     adapter.submitData(it)
                 }
